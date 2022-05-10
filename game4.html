@@ -1,0 +1,75 @@
+<html lang='de'>
+  <head>
+    <meta charset='utf-8'>
+    <link rel='stylesheet'   href='stylesheetpc.css'>
+    <link rel='icon' href='img/websiteicon.png'>
+    <title> Kniffel - Multiplayer </title>
+  </head>
+
+  <body>
+    <center> 
+      <div id="loadingscreen">
+      </div>
+    </center>
+    <center> 
+      <div id="statusmessage">
+      </div> 
+    </center>
+    <center>  
+      <div id="sessionstatus">
+      </div> 
+    </center>
+    <center>  
+      <div id="content" style="visibility: hidden;">
+      </div>
+    </center>
+
+  </body>
+
+  <footer>
+    <div id='innerfooter'>
+      <! ... >
+      <! Kontakt |
+      Regeln>
+    </div>
+  </footer>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> 
+
+  <script>
+    var numberofplayers;
+    function checkgameready(){
+      $.ajax({
+        type:'GET',
+        url:'checkplayernum.php',
+        async:false,
+        contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+        dataType:'text',
+        processData:'true',
+        success: function(data){
+        numberofplayers=data;
+        }
+      })
+      document.getElementById('statusmessage').innerHTML='Warten auf weitere Spieler <br/> (Aktuelle Anzahl an Spielern: '+numberofplayers +') <br/> ';
+      $.get('getsession.php', function(data){ document.getElementById('sessionstatus').innerHTML='Spielcode:'+data;});
+      if (numberofplayers>=2){
+        clearInterval(checkinterval);
+        document.getElementById('loadingscreen').remove();
+        document.getElementById('content').style='visibility:visible';
+        document.getElementById('statusmessage').remove();
+        document.getElementById('sessionstatus').remove();
+      }   
+    }
+    var checkinterval= setInterval(checkgameready,1000);
+    
+
+    function loadpage(){
+      $('#content').load('game.php');
+    }
+    setInterval(loadpage,1000);
+    
+  </script>
+
+
+<html>
+  
