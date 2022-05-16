@@ -7,6 +7,10 @@
   </head>
 
   <body>
+    <center>  
+      <div id="content" style="visibility: hidden;">
+      </div>
+    </center>
     <center> 
       <div id="loadingscreen">
       </div>
@@ -19,10 +23,7 @@
       <div id="sessionstatus">
       </div> 
     </center>
-    <center>  
-      <div id="content" style="visibility: hidden;">
-      </div>
-    </center>
+    
 
   </body>
 
@@ -38,6 +39,14 @@
 
   <script>
     var numberofplayers;
+    
+    $('#content').load('game.php');
+    function loadpage(){
+      $('#content').load('game.php');
+    }
+    setInterval(loadpage,1000);
+    
+    
     function checkgameready(){
       $.ajax({
         type:'GET',
@@ -63,10 +72,7 @@
     var checkinterval= setInterval(checkgameready,1000);
     
 
-    function loadpage(){
-      $('#content').load('game.php');
-    }
-    setInterval(loadpage,1000);
+    
     
   </script>
 

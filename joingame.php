@@ -70,10 +70,16 @@
             $updateplayers->close();
 
 
+            /*get rundeid */
+            $rundeidprep= "SELECT max(rundeid) FROM runde";
+            $getrundeid=$connection -> query($rundeidprep);
+            $rundeid=mysqli_fetch_array($getrundeid);
+
+
             /* create table for new player */
-            $makegamesheetprep="INSERT INTO gamesheet (playerid) VALUES (?)";
+            $makegamesheetprep="INSERT INTO gamesheet (playerid,rundeid) VALUES (?,?)";
             $makegamesheet=$connection->prepare($makegamesheetprep);
-            $makegamesheet->bind_param("s",$usernamehash);
+            $makegamesheet->bind_param("ss",$usernamehash,$rundeid);
             $makegamesheet->execute();
             $makegamesheet->close();
 

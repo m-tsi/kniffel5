@@ -44,12 +44,6 @@ if (isset($_SESSION['sessionid'])){
   $connection -> query($setdatabase);
 
 
-
-
-
-
-
-
   /*get all active ids from playerlist */
   $selectplayersprep="SELECT playerlist FROM gamestate WHERE sessionid=?";
   $selectplayers=$connection->prepare($selectplayersprep);
@@ -64,12 +58,12 @@ if (isset($_SESSION['sessionid'])){
 
 
 
-
-
-
   /* create table for each player */ 
   for ($i=0;$i<count($playerlistarray);$i++){  
+
     echo"<div id='table1'> <table><tr> <th> ";
+
+
     $selectnicknameprep="SELECT nickname FROM player WHERE playerid=?";
     $selectnickname=$connection->prepare($selectnicknameprep);
     $playername= $playerlistarray[$i];
@@ -79,33 +73,52 @@ if (isset($_SESSION['sessionid'])){
     $selectnickname->fetch();
     $selectnickname->close();
     echo $printplayer;
+
+    /*select last inserted runde with session id*/
+    $selectrundeprep="SELECT rundeid FROM runde WHERE sessionid=?";
+    $selectrunde=$connection->prepare($selectrundeprep);
+    $selectrunde->bind_param("s",$sessionid);
+    $selectrunde->execute();
+    $selectrunde->bind_result($rundeid);
+    $selectrunde->fetch();
+    $selectrunde->close();
+
+    $selectgamesheetprep="SELECT einser ,zweier, dreier , vierer ,fuenfer ,sechser, dreierpasch ,viererpasch,kleinestrasse ,grossestrasse,chance ,kniffel ,bonus ,untersumme,obersumme ,summe
+    FROM gamesheet WHERE rundeid=? AND playerid=?";
+    $selectgamesheet=$connection->prepare($selectgamesheetprep);
+    $selectgamesheet->bind_param("ss",$rundeid,$playerid);
+    $selectgamesheet->execute();
+    $selectgamesheet->bind_result($einser ,$zweier, $dreier , $vierer ,$fuenfer ,$sechser, $dreierpasch ,$viererpasch,$kleinestrasse ,$grossestrasse,$chance ,$kniffel ,$bonus ,$untersumme,$obersumme ,$summe);
+    $selectgamesheet->fetch();
+    $selectgamesheet->close();
+
     echo"
       </th>
       <th id=points'> Punkte </th>
       </tr>
-      <tr>
+      <tr >
         <th> 1er </th>
-        <th id='1' onclick='selectfieldnum(1)'>  </th>
+         <div> <a href='clickdice.php'> <th id='1' >  test </th> </a> </div> 
       </tr>
       <tr>
         <th> 2er </th>
-        <th id='2' onclick='selectfieldnum(2)'>  </th>
+        <th id='2' onclick='selectfieldnum(2)'> ". $zweier ." </th>
       </tr>
       <tr>
         <th> 3er </th>
-        <th id='3' onclick='selectfieldnum(3)'>  </th>
+        <th id='3' onclick='selectfieldnum(3)'> ". $dreier ." </th>
       </tr>
       <tr>
         <th> 4er </th>
-        <th id='4' onclick='selectfieldnum(4)'> </th>
+        <th id='4' onclick='selectfieldnum(4)'> ". $vierer ." </th>
       </tr>
       <tr>
         <th> 5er </th>
-        <th id='5' onclick='selectfieldnum(5)'> </th>
+        <th id='5' onclick='selectfieldnum(5)'>". $fuenfer ." </th>
       </tr>
       <tr>
         <th> 6er </th>
-        <th id='6' onclick='selectfieldnum(6)'> </th>
+        <th id='6' onclick='selectfieldnum(6)'>". $sechser ." </th>
       </tr>
       <tr>
         <th> Summe </th>
@@ -161,24 +174,83 @@ if (isset($_SESSION['sessionid'])){
 
   echo"
     <div id='board'>
-      <center> <button type='button' name='button' id='roll_click' onclick='roll()'> ROLLEN </button> <br>
-      </center>
-      <div class='dice_first_row'>
-        <img class='single_dice' alt='' name='0' id='dice1-0' width='50'>
-        <img class='single_dice' alt='' name='1' id='dice1-1' width='50'>
-        <img class='single_dice' alt='' name='2' id='dice1-2' width='50'>
-        <img class='single_dice' alt='' name='3' id='dice1-3' width='50'>
-        <img class='single_dice' alt='' name='4' id='dice1-4' width='50'>
-      </div> <br/>
-      <div class='dice_second_row'>
-        <img class='single_dice' alt='' id='dice2-0' width='50'>
-        <img class='single_dice' alt='' id='dice2-1' width='50'>
-        <img class='single_dice' alt='' id='dice2-2' width='50'>
-        <img class='single_dice' alt='' id='dice2-3' width='50'>
-        <img class='single_dice' alt='' id='dice2-4' width='50'>
-      </div>
-      <center> ";
-  echo "Spiel-ID: ".$_SESSION['sessionid'] . "<br/>";
+      <center> 
+      <form action='rolldice.php' name='roll' method='post'> 
+        <input type='submit' name='roll' value='Rollen'>
+      </form>
+      <br>
+      </center>"; /*FIX */
+
+      /*select last inserted runde  with session id*/
+      $selectrundeprep="SELECT max(rundeid) FROM runde WHERE sessionid=?";
+      $selectrunde=$connection->prepare($selectrundeprep);
+      $selectrunde->bind_param("s",$sessionid);
+      $selectrunde->execute();
+      $selectrunde->bind_result($rundeid);
+      $selectrunde->fetch();
+      $selectrunde->close();
+
+
+      /*selct rollid of current wurf */
+      $selectrollidprep="SELECT rollid FROM wuerfe WHERE rundeid=?";
+      $selectrollid=$connection->prepare($selectrollidprep);
+      $selectrollid->bind_param("s",$rundeid);
+      $selectrollid->execute();
+      $selectrollid->bind_result($rollid);
+      $selectrollid->fetch();
+      $selectrollid->close();
+
+
+      
+      /*create empty rows for inserting dice values*/
+      $row1=[0,0,0,0,0];
+      $row2=[0,0,0,0,0];
+
+
+      /*get dice values if wurf exists */
+      if ($rollid!=null){
+      
+        /*get dice-rows of wurf */
+        $wurfinfoprep="SELECT randomvalues,selection FROM wuerfe WHERE rundeid=? AND rollid=(SELECT max(rollid) FROM wuerfe)";
+        $wurfinfo=$connection->prepare($wurfinfoprep);
+        $wurfinfo->bind_param("s",$rundeid);
+        $wurfinfo->execute();
+        $wurfinfo->bind_result($randomvaluesstring,$selectionstring);
+        $wurfinfo->fetch();
+        $wurfinfo->close();
+
+
+        /*get arrays of dice-rows */
+        $randomvalues=json_decode($randomvaluesstring);
+        $selection=json_decode($selectionstring);
+
+
+        /*combine empty arrays and dice-values */
+        for ($i=0; $i < count($randomvalues); $i++) { 
+          $row1[$i]+=$randomvalues[$i];
+        }
+  
+        for ($i=0; $i < count($selection); $i++) { 
+          $row2[$i]+=$selection[$i];
+        }
+      }
+
+
+    /*show dice */
+    echo"<div class='dice_first_row'>";
+    for ($i=0; $i < count($row1); $i++) {  
+      echo"<a href='clickdice.php?dice=".$row1[$i]."&position=".$i."' > <img class='single_dice' src='img/dice".$row1[$i] . ".png' width='50'> </a>";
+    }
+    echo" </div> <br/>
+      <div class='dice_second_row'>";
+    for ($i=0; $i < count($row2); $i++) {  
+      echo"<img class='single_dice' src='img/dice".$row2[$i] . ".png' value='".$row2[$i]."'width='50'>";
+    }
+  echo"</div><center> ";
+
+
+  /*show gameinfo */
+  echo "Spiel-ID: ".$sessionid . "<br/>";
   echo "Spielername: ".$nickname."<br/>";
         
   /* find current player and return their name and how many throws they have left */
@@ -216,5 +288,6 @@ if (isset($_SESSION['sessionid'])){
     }           
   }
   echo" </div>  <br></center></div></div>";
+  
 }
 ?>

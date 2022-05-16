@@ -36,6 +36,7 @@
     
   $createtables3="CREATE TABLE IF NOT EXISTS gamesheet(
     playerid VARCHAR(300),
+    rundeid INT,
     einser INT,
     zweier INT,
     dreier INT,
@@ -56,6 +57,7 @@
 
 
   $createtables4="CREATE TABLE IF NOT EXISTS runde(
+    sessionid INT,
     rundeid INT NOT NULL AUTO_INCREMENT,
     playerid VARCHAR(300),
     PRIMARY KEY (rundeid)
@@ -124,22 +126,27 @@
 
 
     
-
-    /* create table for new player */
-    $makegamesheetprep="INSERT INTO gamesheet (playerid) VALUES (?)";
-    $makegamesheet=$connection->prepare($makegamesheetprep);
-    $makegamesheet->bind_param("s",$usernamehash);
-    $makegamesheet->execute();
-    $makegamesheet->close();
-
-
-
-    /*create new runde*/
-    $makerundeprep="INSERT INTO runde (playerid) VALUES (?)";
+  
+    /*create new runde for first player*/
+    $makerundeprep="INSERT INTO runde (sessionid,playerid) VALUES (?,?)";
     $makerunde=$connection->prepare($makerundeprep);
-    $makerunde->bind_param("s",$usernamehash);
+    $makerunde->bind_param("ss",$sessionid, $usernamehash);
     $makerunde->execute();
     $makerunde->close();
+
+
+    /*select rundeid from runde */
+    $rundeidprep= "SELECT max(rundeid) FROM runde";
+    $getrundeid=$connection -> query($rundeidprep);
+    $rundeidget=mysqli_fetch_array($getrundeid);
+    $rundeid= $rundeidget[0];
+
+    /* create table for new player */
+    $makegamesheetprep="INSERT INTO gamesheet (playerid,rundeid) VALUES (?,?)";
+    $makegamesheet=$connection->prepare($makegamesheetprep);
+    $makegamesheet->bind_param("ss",$usernamehash,$rundeid);
+    $makegamesheet->execute();
+    $makegamesheet->close();
 
     echo "Spielcode:" . $sessionid . "<br/>";
     echo "Bitte an Spieler weitergeben!";

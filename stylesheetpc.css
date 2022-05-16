@@ -1,0 +1,60 @@
+body{
+  color: blue;
+  font-family: sans-serif;
+  font-size: 1.2em;
+}
+
+table,th,td{
+  border-radius: 0.05em;
+  border-style: solid;
+  border-color: black;
+  border-collapse: collapse;
+}
+
+#option{
+  background-color: blue;
+  color: white;
+  margin: 1em;
+  padding: 1em;
+  text-decoration: none;
+}
+
+
+
+#board{
+  display: inline-block;
+  border-radius: 0.05em;
+  border-style: solid;
+  border-color: black;
+  padding-right: 5em;
+  padding-left:5em;
+  padding-bottom: 7em;
+  vertical-align: top;
+}
+
+div{
+  display: inline-block;
+}
+
+img{
+  border-radius: 0.05em;
+  border-style: solid;
+  border-color: black;
+}
+
+#loadingscreen{
+	width:5em;
+	height:5em;
+	border:1em solid blue;
+	border-radius:30em;
+	border-bottom-color:transparent;
+	border-right-color:transparent;
+	border-left-color:transparent;
+	animation-name:animation;
+	animation-duration:2s;
+	animation-iteration-count: infinite;
+}
+
+@keyframes animation{
+	100%{ transform:rotate(360deg);}
+}
