@@ -77,7 +77,7 @@
 
 
             /* create table for new player */
-            $makegamesheetprep="INSERT INTO gamesheet (playerid,rundeid) VALUES (?,?)";
+            $makegamesheetprep="INSERT INTO gamesheet (playerid,rundeid,obersumme,untersumme,bonus) VALUES (?,?,0,0,0)";
             $makegamesheet=$connection->prepare($makegamesheetprep);
             $makegamesheet->bind_param("ss",$usernamehash,$rundeid);
             $makegamesheet->execute();

@@ -27,7 +27,7 @@ $array=json_decode($list);
 array_push($array,$username);
 
 /*get all wuerfe for current round */
-$makegame="INSERT INTO wuerfe (rundeid, randomvalues,selection) VALUES (?,?,?)";
+$makegame="INSERT INTO wuerfe (rundeid,randomvalues,selection) VALUES (?,?,?)";
 $inserttable=$connection->prepare($makegame);
 $playerlist=json_encode($randarray);
 $selection=[];

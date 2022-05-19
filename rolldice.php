@@ -29,7 +29,7 @@
 
 
     /*if button is clicked */
-    if (isset($_POST['roll'])){
+    //if (isset($_POST['roll'])){
 
         
 
@@ -90,7 +90,7 @@
         }
 
         /*check if number of dice >0 and number of rolls in runde <3*/
-        if ($wurfamount<3 && $randomlength>0){
+        if ($wurfamount<30 && $randomlength>0){
 
 
         /*create new wurf */
@@ -106,14 +106,14 @@
         
         
         if ($selection==null){
-            $newrandomvalues=[];
+            $newselection=[];
         }
         else{
-            $newrandomvalues=json_decode($selection);
+            $newselection=json_decode($selection);
         }
-        $selection=json_encode($newrandomvalues);
+        $newselectionstring=json_encode($newselection);
 
-        $newwurf->bind_param("sss",$runde,$randomstring,$selection);
+        $newwurf->bind_param("sss",$runde,$randomstring,$newselectionstring);
         $newwurf->execute();
 
         }
@@ -123,7 +123,7 @@
 
         
 
-    }
+    //}
     
 
 

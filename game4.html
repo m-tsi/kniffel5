@@ -7,10 +7,7 @@
   </head>
 
   <body>
-    <center>  
-      <div id="content" style="visibility: hidden;">
-      </div>
-    </center>
+    
     <center> 
       <div id="loadingscreen">
       </div>
@@ -22,6 +19,10 @@
     <center>  
       <div id="sessionstatus">
       </div> 
+    </center>
+    <center>  
+      <div id="content" style="visibility: hidden;">
+      </div>
     </center>
     
 
@@ -72,6 +73,46 @@
     var checkinterval= setInterval(checkgameready,1000);
     
 
+    function rolldice(){
+      $.ajax({
+        type:'POST',
+        url:'rolldice.php',
+        async:false,
+        contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+        dataType:'text',
+        processData:'true',
+        /*success: function(data){
+        numberofplayers=data;
+        }*/
+      })
+    }
+
+    function selectdice(dice, position){
+      $.ajax({
+        //?dice=".$row1[$i]."&position=".$i
+        type:'POST',
+        url:'clickdice.php?dice= ' + dice + '&position=' + position,
+        async:false,
+        contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+        dataType:'text',
+        processData:'true'
+        /*success: function(data){
+        numberofplayers=data;
+        }*/
+      })
+    }
+
+    function selectfieldnum(fieldname){
+      $.ajax({
+        //?dice=".$row1[$i]."&position=".$i
+        type:'POST',
+        url:'selectfield.php?fieldname=' + fieldname,
+        async:false,
+        contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+        dataType:'text',
+        processData:'true',
+      })
+    }
     
     
   </script>

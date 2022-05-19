@@ -66,8 +66,8 @@ if (isset($_SESSION['sessionid'])){
 
     $selectnicknameprep="SELECT nickname FROM player WHERE playerid=?";
     $selectnickname=$connection->prepare($selectnicknameprep);
-    $playername= $playerlistarray[$i];
-    $selectnickname->bind_param("s",$playername);
+    $playerid0= $playerlistarray[$i];
+    $selectnickname->bind_param("s",$playerid0);
     $selectnickname->execute();
     $selectnickname->bind_result($printplayer);
     $selectnickname->fetch();
@@ -83,90 +83,94 @@ if (isset($_SESSION['sessionid'])){
     $selectrunde->fetch();
     $selectrunde->close();
 
-    $selectgamesheetprep="SELECT einser ,zweier, dreier , vierer ,fuenfer ,sechser, dreierpasch ,viererpasch,kleinestrasse ,grossestrasse,chance ,kniffel ,bonus ,untersumme,obersumme ,summe
+    $selectgamesheetprep="SELECT einser ,zweier, dreier , vierer ,fuenfer ,sechser, dreierpasch ,viererpasch,kleinestrasse ,grossestrasse,fullhouse,chance ,kniffel ,bonus ,untersumme,obersumme ,summe
     FROM gamesheet WHERE rundeid=? AND playerid=?";
     $selectgamesheet=$connection->prepare($selectgamesheetprep);
-    $selectgamesheet->bind_param("ss",$rundeid,$playerid);
+    $selectgamesheet->bind_param("ss",$rundeid,$playerid0);
     $selectgamesheet->execute();
-    $selectgamesheet->bind_result($einser ,$zweier, $dreier , $vierer ,$fuenfer ,$sechser, $dreierpasch ,$viererpasch,$kleinestrasse ,$grossestrasse,$chance ,$kniffel ,$bonus ,$untersumme,$obersumme ,$summe);
+    $selectgamesheet->bind_result($einser ,$zweier, $dreier , $vierer ,$fuenfer ,$sechser, $dreierpasch ,$viererpasch,$kleinestrasse ,$grossestrasse,$fullhouse,$chance ,$kniffel ,$bonus ,$untersumme,$obersumme ,$summe);
     $selectgamesheet->fetch();
     $selectgamesheet->close();
 
     echo"
+    <form action='selectfield.php?fieldname=grossestrasse' name='roll' method='post'> 
+    <input type='submit' name='roll' value='MEOW'>
+    </form>
       </th>
       <th id=points'> Punkte </th>
       </tr>
-      <tr >
+      <tr>
         <th> 1er </th>
-         <div> <a href='clickdice.php'> <th id='1' >  test </th> </a> </div> 
+        <th id='einser' onclick='selectfieldnum(".'"einser"'.")'>". $einser ." </th>
+
       </tr>
       <tr>
         <th> 2er </th>
-        <th id='2' onclick='selectfieldnum(2)'> ". $zweier ." </th>
+        <th onclick='selectfieldnum(".'"zweier"'.")'> ". $zweier ." </th>
       </tr>
       <tr>
         <th> 3er </th>
-        <th id='3' onclick='selectfieldnum(3)'> ". $dreier ." </th>
+        <th onclick='selectfieldnum(".'"dreier"'.")'> ". $dreier ." </th>
       </tr>
       <tr>
         <th> 4er </th>
-        <th id='4' onclick='selectfieldnum(4)'> ". $vierer ." </th>
+        <th onclick='selectfieldnum(".'"vierer"'.")'> ". $vierer ." </th>
       </tr>
       <tr>
         <th> 5er </th>
-        <th id='5' onclick='selectfieldnum(5)'>". $fuenfer ." </th>
+        <th onclick='selectfieldnum(".'"fuenfer"'.")'>". $fuenfer ." </th>
       </tr>
       <tr>
         <th> 6er </th>
-        <th id='6' onclick='selectfieldnum(6)'>". $sechser ." </th>
+        <th onclick='selectfieldnum(".'"sechser"'.")'>". $sechser ." </th>
       </tr>
       <tr>
         <th> Summe </th>
-        <th id='sumtop_nobonus'> </th>
+        <th > ". $obersumme ."</th>
       </tr>
       <tr>
         <th> Bonus </th>
-        <th id='bonus'> </th>
+        <th >" . $bonus ." </th>
       </tr>
       <tr>
         <th> Summe mit Bonus </th>
-        <th id='sumtop_bonus'> </th>
+        <th >  ".$obersumme+$bonus ." </th>
       </tr>
       <tr>
         <th> Dreierpasch </th>
-        <th id='Dreierpasch' onclick='selectfield('Dreierpasch')'> </th>
+        <th  onclick='selectfieldnum(".'"dreierpasch"'.")'>". $dreierpasch ." </th>
       </tr>
       <tr>
         <th> Viererpasch </th>
-        <th id='Viererpasch' onclick='selectfield('Viererpasch')'> </th>
+        <th onclick='selectfieldnum(".'"viererpasch"'.")'>". $viererpasch ."</th>
       </tr>
       <tr>
         <th> Kleine Straße </th>
-        <th id='KleineStraße' onclick='selectfield('KleineStraße')'> </th>
+        <th onclick='selectfieldnum(".'"kleinestrasse"'.")'>". $kleinestrasse ." </th>
       </tr>
       <tr>
         <th> Große Straße </th>
-        <th id='GroßeStraße' onclick='selectfield('GroßeStraße')'> </th>
+        <th onclick='selectfieldnum(".'"grossestrasse"'.")'>". $grossestrasse ." </th>
       </tr>
       <tr>
         <th> FullHouse </th>
-        <th id='FullHouse' onclick='selectfield('FullHouse')'> </th>
+        <th onclick='selectfieldnum(".'"fullhouse"'.")'>". $fullhouse ." </th>
       </tr>
       <tr>
         <th> Kniffel </th>
-        <th id='Kniffel' onclick='selectfield('Kniffel')'> </th>
+        <th onclick='selectfieldnum(".'"kniffel"'.")'>". $kniffel ." </th>
       </tr>
       <tr>
         <th> Chance </th>
-        <th id='Chance' onclick='selectfield('Chance')'> </th>
+        <th onclick='selectfieldnum(".'"chance"'.")'>" . $chance . "</th>
       </tr>
       <tr>
         <th> Summe Unten </th>
-        <th id='sum_bottom'> </th>
+        <th > " . $untersumme ." </th>
       </tr>
       <tr>
         <th> Gesamtsumme </th>
-        <th id='sum_total'> </th>
+        <th > ". $obersumme+$untersumme+$bonus ." </th>
       </tr>
       </table> 
       </div>";
@@ -175,9 +179,9 @@ if (isset($_SESSION['sessionid'])){
   echo"
     <div id='board'>
       <center> 
-      <form action='rolldice.php' name='roll' method='post'> 
-        <input type='submit' name='roll' value='Rollen'>
-      </form>
+      <!--<form action='rolldice.php' name='roll' method='post'> -->
+        <input type='submit' name='roll' value='Rollen' onclick='rolldice();'>
+      <!-- </form> -->
       <br>
       </center>"; /*FIX */
 
@@ -239,17 +243,19 @@ if (isset($_SESSION['sessionid'])){
     /*show dice */
     echo"<div class='dice_first_row'>";
     for ($i=0; $i < count($row1); $i++) {  
-      echo"<a href='clickdice.php?dice=".$row1[$i]."&position=".$i."' > <img class='single_dice' src='img/dice".$row1[$i] . ".png' width='50'> </a>";
+      //echo"<a onclick='selectdice($row1[$i])' href='clickdice.php?dice=".$row1[$i]."&position=".$i."' > <img class='single_dice' src='img/dice".$row1[$i] . ".png' width='50'> </a>";
+      echo"<img class='single_dice' src='img/dice".$row1[$i] . ".png' width='50' onclick='selectdice($row1[$i], $i)'>";
     }
     echo" </div> <br/>
       <div class='dice_second_row'>";
     for ($i=0; $i < count($row2); $i++) {  
-      echo"<img class='single_dice' src='img/dice".$row2[$i] . ".png' value='".$row2[$i]."'width='50'>";
+      //echo"<img class='single_dice' src='img/dice".$row2[$i] . ".png' value='".$row2[$i]."'width='50'>";
+      echo"<img class='single_dice' src='img/dice".$row2[$i] . ".png' width='50'>";
     }
   echo"</div><center> ";
 
 
-  /*show gameinfo */
+  /*show gameinfo*/
   echo "Spiel-ID: ".$sessionid . "<br/>";
   echo "Spielername: ".$nickname."<br/>";
         
