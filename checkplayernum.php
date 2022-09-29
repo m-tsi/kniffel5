@@ -35,6 +35,8 @@
   /*get array of playerids*/
   $playerlistarray=json_decode($playerlist);
 
+  /*return number of players */
   echo count($playerlistarray);
+  
 
 ?>

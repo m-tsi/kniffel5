@@ -7,7 +7,6 @@
   </head>
 
   <body>
-    
     <center> 
       <div id="loadingscreen">
       </div>
@@ -24,30 +23,53 @@
       <div id="content" style="visibility: hidden;">
       </div>
     </center>
-    
-
   </body>
-
-  <footer>
-    <div id='innerfooter'>
-      <! ... >
-      <! Kontakt |
-      Regeln>
-    </div>
-  </footer>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> 
 
   <script>
     var numberofplayers;
-    
+    var numberofrounds;
+
+    //game loop
     $('#content').load('game.php');
     function loadpage(){
       $('#content').load('game.php');
     }
     setInterval(loadpage,1000);
     
-    
+    //check if game ends
+    function checkwin(){
+      $.ajax({
+        type:'GET',
+        url:'checkwin.php',
+        async:false,
+        contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+        dataType:'text',
+        processData:'true',
+        success: function(data){
+          numberofrounds=data;
+        }
+      })
+
+
+      if (numberofrounds>=27){
+        $.ajax({
+        type:'GET',
+        url:'getwinner.php',
+        async:false,
+        contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+        dataType:'text',
+        processData:'true',
+        success: function(data){
+          alert(data);
+        }
+        })
+      }
+    }
+    var checkwininterval= setInterval(checkwin,1000);
+
+    //check if game starts
     function checkgameready(){
       $.ajax({
         type:'GET',
@@ -72,7 +94,7 @@
     }
     var checkinterval= setInterval(checkgameready,1000);
     
-
+    //roll dice
     function rolldice(){
       $.ajax({
         type:'POST',
@@ -81,42 +103,33 @@
         contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
         dataType:'text',
         processData:'true',
-        /*success: function(data){
-        numberofplayers=data;
-        }*/
+        
       })
     }
 
+    //select dice
     function selectdice(dice, position){
       $.ajax({
-        //?dice=".$row1[$i]."&position=".$i
         type:'POST',
         url:'clickdice.php?dice= ' + dice + '&position=' + position,
         async:false,
         contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
         dataType:'text',
         processData:'true'
-        /*success: function(data){
-        numberofplayers=data;
-        }*/
       })
     }
 
-    function selectfieldnum(fieldname){
+    //select field
+    function selectfieldnum(fieldname,playername){
       $.ajax({
-        //?dice=".$row1[$i]."&position=".$i
         type:'POST',
-        url:'selectfield.php?fieldname=' + fieldname,
+        url:'selectfield.php?fieldname=' + fieldname+'&playername='+playername,
         async:false,
         contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
         dataType:'text',
         processData:'true',
       })
     }
-    
-    
   </script>
-
-
 <html>
   

@@ -1,0 +1,638 @@
+<html lang='de'>
+  <head>
+    <meta charset='utf-8'>
+    <link rel='stylesheet'   href='stylesheetpc.css'>
+    <link rel='icon' href='img/websiteicon.png'>
+    <title> Kniffel</title>
+  </head>
+
+  <body>
+    
+    <center> 
+      <div id="loadingscreen">
+      </div>
+    </center>
+    <center> 
+      <div id="statusmessage">
+      </div> 
+    </center>
+    <center>  
+      <div id="sessionstatus">
+      </div> 
+    </center>
+    <center>  
+      <div id="content" style="visibility: hidden;">
+      </div>
+    </center>
+    
+
+  </body>
+
+  
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> 
+
+  <script>
+
+    //define variables
+    var numberofplayers;
+    var numberofrounds;
+    var indicesnumeric=['einser','zweier','dreier','vierer','fuenfer','sechser'];
+    var indicesall=['einser','zweier','dreier','vierer','fuenfer','sechser','dreierpasch' ,'viererpasch','kleinestrasse' ,'grossestrasse','fullhouse','chance' ,'kniffel'];
+
+
+    //calculates turn of bot
+    function checkMyTurn(){
+
+      //get previous dices from interface
+      var rolleddices= document.getElementById('getrandom0').innerHTML;
+      rolleddices=JSON.parse(rolleddices);
+
+      //sort dices
+      var dicecopy=structuredClone(rolleddices);
+      var dicessorted= rolleddices.sort();
+
+      //array to put selected values into
+      var setdices=[];
+      
+      
+      //check if dices are already visible in game so no empty array is picked up
+      if (!(dicessorted.includes('0'))){
+
+        //save biggest number of same dices in turn
+        var count = [0,0,0,0,0,0,0];
+        for (let index = 0; index < dicessorted.length; index++) {
+          if (dicessorted[index]!='0'){
+            count[dicessorted[index]]+=1; 
+          }
+        }
+
+        //find maximum of same values in array
+        var maxamount= Math.max.apply(Math,count);
+      
+
+        //check if street is possible -> if yes: set type to 'street'
+        if ((document.querySelector('#table1').querySelector('#kleinestrasse').innerHTML==''|| document.querySelector('#table1').querySelector('#grossestrasse').innerHTML=='') &&                  (dicessorted.includes(1) && dicessorted.includes(2) && dicessorted.includes(3) && dicessorted.includes(4)) || (dicessorted.includes(4) && dicessorted.includes(5) && dicessorted.includes(2) && dicessorted.includes(3)) || (dicessorted.includes(6) && dicessorted.includes(5) && dicessorted.includes(4) && dicessorted.includes(3) )  ){
+          type='street';
+        }
+
+
+
+        //CASE 1: STREET
+        //CASE 1 STEP 1 
+        if (type=='street'){
+        
+          //check if BOT is allowed to play turn
+          if (document.getElementById('turns').innerHTML==2 && remainingturns==2){
+
+            // Check for street if row of four numbers in a row exists (ex. 1,2,3,4 / 2,3,4,5 / 3,4,5,6)
+            //if yes, select all elements of the row
+            //1. for 1234
+            if (dicessorted.includes(1) && dicessorted.includes(2) && dicessorted.includes(3) && dicessorted.includes(4)){
+              if (dicessorted.includes(5)){
+                selectdice(5, (dicecopy.indexOf(5).toString()));
+                dicecopy.splice((dicecopy.indexOf(5).toString())  ,1);
+                setdices.push(5);
+              }
+              selectdice(1, (dicecopy.indexOf(1).toString()));
+              dicecopy.splice((dicecopy.indexOf(1).toString())  ,1);
+              setdices.push(1);
+              selectdice(2, (dicecopy.indexOf(2).toString()));
+              dicecopy.splice((dicecopy.indexOf(2).toString())  ,1);
+              setdices.push(2);
+              selectdice(3, (dicecopy.indexOf(3).toString()));
+              dicecopy.splice((dicecopy.indexOf(3).toString())  ,1);
+              setdices.push(3);
+              selectdice(4, (dicecopy.indexOf(4).toString()));
+              dicecopy.splice((dicecopy.indexOf(4).toString())  ,1);
+              setdices.push(4);
+            }
+
+            //2. for 2345
+            else if (dicessorted.includes(2) && dicessorted.includes(3) && dicessorted.includes(4) && dicessorted.includes(5)){
+              if (dicessorted.includes(1)){
+                selectdice(1, (dicecopy.indexOf(1).toString()));
+                dicecopy.splice((dicecopy.indexOf(1).toString())  ,1);
+                setdices.push(1);
+              }
+              if (dicessorted.includes(6)){
+                selectdice(6, (dicecopy.indexOf(6).toString()));
+                dicecopy.splice((dicecopy.indexOf(6).toString())  ,1);
+                setdices.push(6);
+              }
+              selectdice(5, (dicecopy.indexOf(5).toString()));
+              dicecopy.splice((dicecopy.indexOf(5).toString())  ,1);
+              setdices.push(5);
+              selectdice(2, (dicecopy.indexOf(2).toString()));
+              dicecopy.splice((dicecopy.indexOf(2).toString())  ,1);
+              setdices.push(2);
+              selectdice(3, (dicecopy.indexOf(3).toString()));
+              dicecopy.splice((dicecopy.indexOf(3).toString())  ,1);
+              setdices.push(3);
+              selectdice(4, (dicecopy.indexOf(4).toString()));
+              dicecopy.splice((dicecopy.indexOf(4).toString())  ,1);
+              setdices.push(4);
+            }
+
+            //3. for 3456
+            else if (dicessorted.includes(3) && dicessorted.includes(4) && dicessorted.includes(5) && dicessorted.includes(6)){
+              if (dicessorted.includes(2)){
+                selectdice(2, (dicecopy.indexOf(2).toString()));
+                dicecopy.splice((dicecopy.indexOf(2).toString())  ,1);
+                setdices.push(2);
+              }
+              selectdice(6, (dicecopy.indexOf(6).toString()));
+              dicecopy.splice((dicecopy.indexOf(6).toString())  ,1);
+              setdices.push(6);
+              selectdice(5, (dicecopy.indexOf(5).toString()));
+              dicecopy.splice((dicecopy.indexOf(5).toString())  ,1);
+              setdices.push(5);
+              selectdice(3, (dicecopy.indexOf(3).toString()));
+              dicecopy.splice((dicecopy.indexOf(3).toString())  ,1);
+              setdices.push(3);
+              selectdice(4, (dicecopy.indexOf(4).toString()));
+              dicecopy.splice((dicecopy.indexOf(4).toString())  ,1);
+              setdices.push(4);
+            }
+
+            
+            //chose grossestrasse if already five numbers in a row visible
+            if (setdices.length==5){
+              if (document.querySelector('#table1').querySelector('#grossestrasse').innerHTML==''){
+                remainingturns=3;
+                selectfieldnum("grossestrasse",'BOT');
+              }
+              //chose kleinestrasse instead if grossestrasse is filled
+              else if (document.querySelector('#table1').querySelector('#kleinestrasse').innerHTML==''){
+                remainingturns=3;
+                selectfieldnum("kleinestrasse",'BOT');
+              }
+            }
+            
+            else{
+            //roll again and update turns
+            rolldice();
+            remainingturns=remainingturns-1;
+            }
+            
+          }
+
+
+          
+          //CASE 1 STEP 2
+          /*check if new element completes set */
+          else if (document.getElementById('turns').innerHTML==1&&remainingturns==1){
+            
+            //get selection and randomvalues dice rows from seconds row
+            var selecteddices2= document.getElementById('getselection1').innerHTML;
+            selecteddices2=JSON.parse(selecteddices2);
+            var rolleddices2 =document.getElementById('getrandom1').innerHTML;
+            rolleddices2=JSON.parse(rolleddices2);
+            
+
+            //find minimum and maximum in selection array
+            var maximum=Math.max.apply(Math,selecteddices2);
+            var minimum=Math.min.apply(Math,selecteddices2);
+
+            //update set with neighboring numbers that complete it
+            if ( (parseInt(maximum)==parseInt(rolleddices2)-1)|| (parseInt(minimum)==parseInt(rolleddices2)+1))   {
+              selectdice(parseInt(rolleddices2), (dicecopy.indexOf(parseInt(rolleddices2)).toString()));
+              dicecopy.splice((dicecopy.indexOf(parseInt(rolleddices2)).toString())  ,1);
+              setdices.push(parseInt(rolleddices2));
+
+              //chose grossestrasse if already five numbers in a row visible
+              if (document.querySelector('#table1').querySelector('#grossestrasse').innerHTML==''){
+                remainingturns=3;
+                selectfieldnum("grossestrasse",'BOT');
+                
+              }
+              //chose kleinestrasse if grossestrasse filled
+              else if (document.querySelector('#table1').querySelector('#kleinestrasse').innerHTML==''){
+                remainingturns=3;
+                selectfieldnum("kleinestrasse",'BOT');
+              }
+            }
+
+            
+            else{
+
+            //roll again and update turns
+            rolldice();
+            remainingturns=remainingturns-1;
+            }
+          }
+
+
+          //CASE 1 STEP 3
+          //third turn
+          else if (document.getElementById('turns').innerHTML==0 &&remainingturns==0){
+            
+            //ge4t selection for third row
+            var selecteddices3= document.getElementById('getselection2').innerHTML;
+            selecteddices3=JSON.parse(selecteddices3);
+
+            
+            //find minimum and maximum in previously selected array
+            var maximum=Math.max.apply(Math,dicessorted);
+            var minimum=Math.min.apply(Math,dicessorted);
+
+            //update set with neighboring numbers that complete it
+            if ( (parseInt(maximum)==parseInt(selecteddices3)-1)|| (parseInt(minimum)==parseInt(selecteddices3)+1)){
+              selectdice(parseInt(selecteddices3), (dicecopy.indexOf(parseInt(selecteddices3)).toString()));
+              dicecopy.splice((dicecopy.indexOf(parseInt(selecteddices3)).toString())  ,1);
+              setdices.push(parseInt(selecteddices3));
+
+              //set grossestrasse if all dices are selected
+              if (document.querySelector('#table1').querySelector('#grossestrasse').innerHTML==''){
+                remainingturns=3;
+                selectfieldnum("grossestrasse",'BOT');
+              
+              }
+            }
+            
+
+            //check for kleinestrasse
+            else if (document.querySelector('#table1').querySelector('#kleinestrasse').innerHTML==''){
+              selectfieldnum("kleinestrasse",'BOT');
+            }
+
+            // check chance 
+            else if (document.querySelector('#table1').querySelector('#chance').innerHTML==''){
+              selectfieldnum('chance','BOT');
+            }
+
+            // select random field
+            else{
+              for (let index = 0; index < indicesall.length; index++) {
+                if (document.querySelector('#table1').querySelector('#'+indicesall[index]).innerHTML==''){
+                  selectfieldnum(indicesall[index],'BOT');
+                }
+              }
+            }
+
+            //update turns
+            remainingturns=3;
+          }
+        
+        }
+
+
+        //CASE 2 SET BIGGEST ELEMENT OF ARRAY
+          
+        //if actual field type is numerical
+        if (type=='numerical'){
+
+
+          //CASE 2 STEP 1
+          //check if its the bots first turn 
+          if (document.getElementById('turns').innerHTML==2 && remainingturns==2){
+
+            //get random values from first roll and sort them
+            rolleddices= document.getElementById('getrandom0').innerHTML;
+            rolleddices=JSON.parse(rolleddices);
+
+            //copy rolleddices
+            dicecopy=structuredClone(rolleddices);
+
+            //sort rolleddices
+            dicessorted= rolleddices.sort();
+
+            //get biggest element from current randomvalues
+            maximumelement=Math.max.apply(Math,dicessorted);
+
+              
+              
+            //find biggest value in random values that has an empty field on the gamesheet
+            var searchloop=true;
+            while (searchloop){
+              //if no free values found, use biggest element
+              if (maximumelement<1){
+                maximumelement=Math.max.apply(Math,dicessorted);
+                searchloop=false;
+              }
+              //if biggest element empty in gamesheet use it as desired numeric value
+              else if (document.querySelector('#table1').querySelector('#'+indicesnumeric[maximumelement-1]).innerHTML=='' && dicecopy.includes(maximumelement)){
+                searchloop=false;
+              }
+
+              //if maximum element not empty yet, then lower it
+              else{
+                maximumelement=maximumelement-1;
+              }
+            }
+              
+              
+            //select all occurences of the previously selected maximumelement
+            while(dicecopy.includes(maximumelement)){
+              selectdice(maximumelement, (dicecopy.indexOf((maximumelement)).toString()));
+              dicecopy.splice((dicecopy.indexOf((maximumelement)).toString())  ,1);
+              setdices.push((maximumelement));
+            }
+
+            //check for early kniffel
+            //get random values from first roll and sort them
+            rolleddices= document.getElementById('getrandom0').innerHTML;
+            rolleddices=JSON.parse(rolleddices);
+              
+            //if no dices left
+            if (dicecopy.length==0){
+                
+              //select kniffel if field open
+              if(document.querySelector('#table1').querySelector('#kniffel').innerHTML==''){
+                remainingturns=3;
+                selectfieldnum("kniffel",'BOT');
+              }
+
+              //else chose a random field
+              else{
+                for (let index = 0; index < indicesall.length; index++) {
+                  if (document.querySelector('#table1').querySelector('#'+indicesall[index]).innerHTML==''){
+                    remainingturns=3;
+                    selectfieldnum(indicesall[index],'BOT');
+                  }
+                }
+              }
+            }
+
+              
+            else{
+              //roll dice again and adjust turns
+              rolldice();
+              remainingturns=remainingturns-1;
+            }
+          }
+         
+          //CASE 2 - STEP2
+          //check if its the bots second turn 
+          else if (document.getElementById('turns').innerHTML==1&&remainingturns==1){
+
+            //read new random values from second row
+            var rolleddices2= document.getElementById('getrandom1').innerHTML;
+            rolleddices2=JSON.parse(rolleddices2);
+
+            //copy rolleddices
+            var dicecopy2=structuredClone(rolleddices2);
+            
+            //select all occurences of the previously in case 2 part 1 selected maximumelement
+            while(dicecopy2.includes(maximumelement)){
+              selectdice(maximumelement, (dicecopy2.indexOf((maximumelement)).toString()));
+              dicecopy2.splice((dicecopy2.indexOf((maximumelement)).toString())  ,1);
+              setdices.push((maximumelement));
+            }
+
+
+            //check for early kniffel
+            if (dicecopy2.length==0){
+                
+              //use kniffel if feild open
+              if(document.querySelector('#table1').querySelector('#kniffel').innerHTML==''){
+                remainingturns=3;
+                selectfieldnum("kniffel",'BOT');
+              }
+
+              //else select random field
+              else{
+                for (let index = 0; index < indicesall.length; index++) {
+                  if (document.querySelector('#table1').querySelector('#'+indicesall[index]).innerHTML==''){
+                    remainingturns=3;
+                    selectfieldnum(indicesall[index],'BOT');
+                  }
+                }
+              }
+            }
+            
+            else{
+              //roll dice again and adjust turns
+              rolldice();
+              remainingturns=remainingturns-1;
+            }
+          }
+        
+
+
+          //CASE 2: STEP 3
+          //check if its the bots third turn 
+          else if (document.getElementById('turns').innerHTML==0&& remainingturns==0){
+            
+            //read new random values from third row
+            var rolleddices3= document.getElementById('getrandom2').innerHTML;
+            rolleddices3=JSON.parse(rolleddices3);
+
+            //copy current rolleddices
+            var dicecopy3=structuredClone(rolleddices3);
+
+            //sort current rolleddices
+            var dicessorted3= rolleddices3.sort();
+
+            //select all occurences of the previously in case 2 part 1 selected maximumelement
+            for (let index = 0; index < dicessorted3.length; index++) {
+              selectdice(dicessorted3[index], dicecopy3.indexOf(dicessorted3[index]).toString());
+              setdices.push(dicessorted3[index]);
+                
+            }
+
+            //update values again with new third row
+            var selecteddices3= document.getElementById('getselection2').innerHTML;
+            selecteddices3=JSON.parse(selecteddices3);
+            var rolleddices3= document.getElementById('getrandom2').innerHTML;
+            rolleddices3=JSON.parse(rolleddices3);
+
+            
+            //put selected values of third row into buckets to count the numbers
+            var count = [0,0,0,0,0,0,0];
+            for (let index = 0; index < selecteddices3.length; index++) {
+              selecteddices3[index]=parseInt(selecteddices3[index]);
+              if (selecteddices3[index]!=0){
+                count[selecteddices3[index]]+=1; 
+              }
+            }
+
+            //put rolled values into buckets to count the numbers
+            for (let index = 0; index < rolleddices3.length; index++) {
+              rolleddices3[index]=parseInt(rolleddices3[index]);
+              if (rolleddices3[index]!=0){
+                count[rolleddices3[index]]+=1; 
+              }
+            }
+
+            //get biggest number and its index from array
+            var maxamount= Math.max.apply(Math,count);
+            var maxindex=  count.indexOf(maxamount).toString();
+
+            //check all cases ranked from how good filling that field is
+            
+            //1. check kniffel
+            if (maxamount==5 && document.querySelector('#table1').querySelector('#kniffel').innerHTML==''){
+              selectfieldnum("kniffel",'BOT');
+            }
+
+            //2. check viererpasch
+            else if (maxamount==4 && document.querySelector('#table1').querySelector('#viererpasch').innerHTML==''){
+              selectfieldnum("viererpasch",'BOT');
+            }
+
+            //3. check fullhouse
+            else if (count.includes(2) && count.includes(3) && document.querySelector('#table1').querySelector('#fullhouse').innerHTML==''){
+              selectfieldnum("fullhouse",'BOT');
+            }
+
+            //4. check dreierpasch
+            else if (maxamount==3 && document.querySelector('#table1').querySelector('#dreierpasch').innerHTML==''){
+              selectfieldnum("dreierpasch",'BOT');
+            }
+
+
+            //5. check numerical fields
+            else if (document.querySelector('#table1').querySelector('#'+indicesnumeric[(maxindex-1)]).innerHTML==''){
+              selectfieldnum(indicesnumeric[(maxindex-1)],'BOT');
+            }
+
+            //6. check chance 
+            else if (document.querySelector('#table1').querySelector('#chance').innerHTML==''){
+              selectfieldnum('chance','BOT');
+            }
+
+            //7. set random field
+            else{
+              for (let index = 0; index < indicesall.length; index++) {
+                if (document.querySelector('#table1').querySelector('#'+indicesall[index]).innerHTML==''){
+                  selectfieldnum(indicesall[index],'BOT');
+                }
+              }
+            }
+
+            //set turns back
+            remainingturns=3;
+          }
+        }
+      }
+    }
+
+    //game loop
+    $('#content').load('game.php');
+
+    //load page content 
+    function loadpage(){
+      $('#content').load('game.php');
+    }
+    var gameint= setInterval(loadpage,300);
+    
+    //temp variables for ai algorithm
+    let maximumelement=0;
+    let remainingturns=3;
+    let type=null; 
+
+
+    //function that applies bot move
+    function loadbot(){
+      var currentplayer = document.getElementById('currentplayer').innerHTML;
+      var myplayer = document.getElementById('myplayer').innerHTML;
+
+      //check if bot active
+      if (currentplayer=='BOT' && myplayer=='BOT'){
+        if (document.getElementById('turns').innerHTML==3 && remainingturns==3){
+          rolldice();
+          remainingturns=2;
+          maximumelement=0;
+          type='numerical';
+        }
+        checkMyTurn();
+      }
+    }
+    setInterval(loadbot,600);
+
+    //check if game ends
+    function checkwin(){
+      $.ajax({
+        type:'GET',
+        url:'checkwin.php',
+        async:false,
+        contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+        dataType:'text',
+        processData:'true',
+        success: function(data){
+          numberofrounds=data;
+        }
+      })
+
+
+      if (numberofrounds>=27){
+        $.ajax({
+          type:'GET',
+          url:'getwinner.php',
+          async:false,
+          contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+          dataType:'text',
+          processData:'true',
+          success: function(data){
+            alert(data);
+          }
+        })
+      }
+    }
+    var checkwininterval= setInterval(checkwin,1000);
+
+    /*check if two players ready */
+    function checkgameready(){
+      $.ajax({
+        type:'GET',
+        url:'checkplayernum.php',
+        async:false,
+        contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+        dataType:'text',
+        processData:'true',
+        success: function(data){
+          numberofplayers=data;
+        }
+      })
+      document.getElementById('statusmessage').innerHTML='Warten auf weitere Spieler <br/> (Aktuelle Anzahl an Spielern: '+numberofplayers +') <br/> ';
+      $.get('getsession.php', function(data){ document.getElementById('sessionstatus').innerHTML='Spielcode:'+data;});
+      if (numberofplayers>=2){
+        clearInterval(checkinterval);
+        document.getElementById('loadingscreen').remove();
+        document.getElementById('content').style='visibility:visible';
+        document.getElementById('statusmessage').remove();
+        document.getElementById('sessionstatus').remove();
+      }   
+    }
+    var checkinterval= setInterval(checkgameready,1000);
+    
+    /*roll dice*/
+    function rolldice(){
+      $.ajax({
+        type:'POST',
+        url:'rolldice.php',
+        async:false,
+        contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+        dataType:'text',
+        processData:'true',
+      })
+    }
+
+    /*select dice*/
+    function selectdice(dice, position){
+      $.ajax({
+        type:'POST',
+        url:'clickdice.php?dice= ' + dice + '&position=' + position,
+        async:false,
+        contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+        dataType:'text',
+        processData:'true'
+      })
+    }
+
+    /*select field */
+    function selectfieldnum(fieldname,playername){
+      $.ajax({
+        type:'POST',
+        url:'selectfield.php?fieldname=' + fieldname+'&playername='+playername,
+        async:false,
+        contentType:'application/x-www-form-urlencoded;charset=UTF-8;' ,
+        dataType:'text',
+        processData:'true',
+      })
+    }
+    
+    
+  </script>
+<html>

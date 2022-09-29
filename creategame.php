@@ -20,7 +20,7 @@
   $setdatabase=" USE databasekniffel; ";
   $connection -> query($setdatabase);
 
-  /* create tables    SELECT LAST_INSERT_ID();*/
+  /* create tables */
   $createtables1=" CREATE TABLE IF NOT EXISTS gamestate(
     sessionid INT NOT NULL AUTO_INCREMENT,
     playerlist VARCHAR(300),
@@ -36,7 +36,6 @@
     
   $createtables3="CREATE TABLE IF NOT EXISTS gamesheet(
     playerid VARCHAR(300),
-    rundeid INT,
     einser INT,
     zweier INT,
     dreier INT,
@@ -87,11 +86,11 @@
   $changestart3="ALTER TABLE runde AUTO_INCREMENT=10; ";
   $connection -> query($changestart3);
 
+  /* if nickname is set correctly */
   if (isset($_POST['nickname']) && $_POST['nickname']!=''){
 
     /*read post variables */
     $nickname=$_POST['nickname'];
-
     $_SESSION['nickname']=$_POST['nickname'];
 
     /* create id for user */
@@ -117,7 +116,6 @@
     $_SESSION['sessionid']=$sessionid;
 
   
-
     /*make first user */
     $makeplayerprep="INSERT INTO player (nickname,playerid,sessionid) VALUES (?,?,?)";
     $makeplayer=$connection->prepare($makeplayerprep);
@@ -125,9 +123,6 @@
     $makeplayer->execute();
     $makeplayer->close();
 
-
-    
-  
     /*create new runde for first player*/
     $makerundeprep="INSERT INTO runde (sessionid,playerid) VALUES (?,?)";
     $makerunde=$connection->prepare($makerundeprep);
@@ -135,17 +130,10 @@
     $makerunde->execute();
     $makerunde->close();
 
-
-    /*select rundeid from runde */
-    $rundeidprep= "SELECT max(rundeid) FROM runde";
-    $getrundeid=$connection -> query($rundeidprep);
-    $rundeidget=mysqli_fetch_array($getrundeid);
-    $rundeid= $rundeidget[0];
-
     /* create table for new player */
-    $makegamesheetprep="INSERT INTO gamesheet (playerid,rundeid,obersumme,untersumme,bonus) VALUES (?,?,0,0,0)";
+    $makegamesheetprep="INSERT INTO gamesheet (playerid,obersumme,untersumme,bonus) VALUES (?,0,0,0)";
     $makegamesheet=$connection->prepare($makegamesheetprep);
-    $makegamesheet->bind_param("ss",$usernamehash,$rundeid);
+    $makegamesheet->bind_param("s",$usernamehash);
     $makegamesheet->execute();
     $makegamesheet->close();
 
@@ -153,12 +141,7 @@
     echo "Bitte an Spieler weitergeben!";
 
 
-    
-    /* $returnsessionid= */
-    header('location: http://localhost/game4.html');
-
-  
-  
+    header('location: http://localhost/game5.html');
   }
 
   else{ 

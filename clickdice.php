@@ -1,35 +1,51 @@
 <!DOCTYPE html>
 <?php
 
+  /*start session */
+  session_start();
 
-/*start session */
-session_start();
+  /* establish connection */
+  $user='localhost';
+  $host='root';
+  $connection=new mysqli($user,$host);
+  if ($connection-> connect_error){
+    echo "Verbindung fehlgeschlagen";
+  } 
 
-/* establish connection */
-$user='localhost';
-$host='root';
-$connection=new mysqli($user,$host);
-if ($connection-> connect_error){
-  echo "Verbindung fehlgeschlagen";
-} 
+  /*check if database exists and create if needed */
+  $createdatabase="CREATE DATABASE IF NOT EXISTS databasekniffel;";
+  $connection -> query($createdatabase);
 
-/*check if database exists and create if needed */
-$createdatabase="CREATE DATABASE IF NOT EXISTS databasekniffel;";
-$connection -> query($createdatabase);
+  /*set database */
+  $setdatabase="USE databasekniffel;";
+  $connection -> query($setdatabase);
 
-/*set database */
-$setdatabase="USE databasekniffel;";
-$connection -> query($setdatabase);
+  /*get session variables*/
+  $sessionid=$_SESSION['sessionid'];
+  $nickname=$_SESSION['nickname'];
+
+  /*get playerid of current turn*/
+  $playerturnprep="SELECT playerid from runde WHERE rundeid=(SELECT MAX(rundeid) from runde WHERE sessionid=?)"; 
+  $playerturn=$connection->prepare($playerturnprep);
+  $playerturn->bind_param("s",$sessionid);
+  $playerturn->execute();
+  $playerturn->bind_result($turnid);
+  $playerturn->fetch();
+  $playerturn->close();
+
+  /*return name of player of current turn */
+  $turnnicknameprep="SELECT nickname AS nickname FROM player WHERE playerid=?";
+  $turnnickname=$connection->prepare($turnnicknameprep);
+  $turnnickname->bind_param("s",$turnid);
+  $turnnickname->execute();
+  $turnnickname->bind_result($turnname);
+  $turnnickname->fetch();
+  $turnnickname->close();
 
 
-/*get session variables*/
-$sessionid=$_SESSION['sessionid'];
-
-
-/*if dice is clicked (that is not 0) */
-if (isset($_GET['dice']) && isset($_GET['position']) && $_GET['dice']!=0){
-
-  
+  /*check if clicked dice is not empty and if correct player clicked button*/
+  if (isset($_GET['dice']) && isset($_GET['position']) && $_GET['dice']!=0 && $turnname==$nickname){
+    
     /*get variables */
     $dice=$_GET['dice'];
     $position=$_GET['position'];
@@ -43,8 +59,7 @@ if (isset($_GET['dice']) && isset($_GET['position']) && $_GET['dice']!=0){
     $selectrunde->fetch();
     $selectrunde->close();
 
-
-    /*select max wurf in wunde */
+    /*select max roll in wuerfe */
     $selectrollprep="SELECT max(rollid) FROM wuerfe WHERE rundeid=?";
     $selectroll=$connection->prepare($selectrollprep);
     $selectroll->bind_param("s",$rundeid);
@@ -53,7 +68,7 @@ if (isset($_GET['dice']) && isset($_GET['position']) && $_GET['dice']!=0){
     $selectroll->fetch();
     $selectroll->close();
 
-    /*get dice from current roll */
+    /*get dice-values from current roll */
     $wurfinfoprep="SELECT randomvalues, selection FROM wuerfe WHERE rundeid=? AND rollid=?";
     $wurfinfo=$connection->prepare($wurfinfoprep);
     $wurfinfo->bind_param("ss",$rundeid,$rollid);
@@ -75,7 +90,6 @@ if (isset($_GET['dice']) && isset($_GET['position']) && $_GET['dice']!=0){
     $randomvaluesnew=json_encode($randomvalues);
     $selectionnew=json_encode($selection);
 
-
     /*insert new value into wuerfe */
     $updateplayersprep="UPDATE wuerfe SET randomvalues=?,selection=? WHERE rundeid=? AND rollid=?";
     $updateplayers=$connection->prepare($updateplayersprep);
@@ -83,8 +97,6 @@ if (isset($_GET['dice']) && isset($_GET['position']) && $_GET['dice']!=0){
     $updateplayers->execute();
     $updateplayers->close();
 
-}
-
-header('location: http://localhost/game4.html');
+  }
 
 ?>
